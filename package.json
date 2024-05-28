@@ -1,0 +1,35 @@
+{
+  "name": "robochat",
+  "description": "websocket chat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon .",
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZekeScript/roboChat.git"
+  },
+  "author": "ZekeScript",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZekeScript/roboChat/issues"
+  },
+  "homepage": "https://github.com/ZekeScript/roboChat#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-handlebars": "^7.1.2",
+    "handlebars": "^4.7.8",
+    "socket.io": "^4.7.5",
+    "standard": "^17.1.0"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/standard/eslintrc.json"
+  }
+}
