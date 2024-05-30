@@ -1,43 +1,49 @@
-import fs from 'fs'
+import { existsSync, promises } from 'fs'
 
 export default class MessageManager {
   constructor (path) {
     this.path = path
   }
 
+  async #writeMsg (msg) {
+    try {
+      await promises.writeFile(this.path, JSON.stringify(msg))
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
   async #getMaxId () {
     let maxId = 0
-    const msgs = await this.getAll()
-    msgs.map((msg) => {
+    const msgs = await this.getAllMsgs()
+    msgs.forEach((msg) => {
       if (msg.id > maxId) {
         maxId = msg.id
       }
-      return maxId
     })
     return maxId
   }
 
-  async createMsg (obj) {
+  async createMsg (textMsg) {
     try {
-      const msg = {
+      const newMsg = {
         id: await this.#getMaxId() + 1,
-        ...obj
+        ...textMsg
       }
-      const msgfile = await this.getAll()
-      msgfile.push(msg)
-      await fs.promises.writeFile(this.path, JSON.stringify(msgfile))
-      return msg
+      const msgList = await this.getAllMsgs()
+      const msgFile = [...msgList, newMsg]
+      await this.#writeMsg(msgFile)
+      return newMsg
     } catch (error) {
       console.log(error)
     }
   }
 
-  async getAll () {
+  async getAllMsgs () {
     try {
-      if (fs.existsSync(this.path)) {
-        const msgs = await fs.promises.readFile(this.path, 'utf8')
-        const msgsJS = JSON.parse(msgs)
-        return msgsJS
+      if (existsSync(this.path)) {
+        const msgs = JSON.parse(await promises.readFile(this.path, 'utf8'))
+        return msgs
       } else {
         return []
       }
@@ -47,42 +53,48 @@ export default class MessageManager {
   }
 
   async getById (id) {
-    const msgsFile = await this.getAll()
-    const msg = msgsFile.find((sms) => sms.id === id)
-    if (msg) {
-      return msg
+    try {
+      const msgList = await this.getAllMsgs()
+      const msgSearched = msgList.find((msg) => msg.id === id)
+      if (msgSearched) {
+        return msgSearched
+      }
+      return false
+    } catch (error) {
+      console.log(error)
     }
-    return false
   }
 
-  async updateMsg (obj, id) {
+  async updateMsg (id, msg) {
     try {
-      const msgsFile = await this.getAll()
-      const index = msgsFile.findIndex(msg => msg.id === id)
-      if (index === -1) {
+      const msgList = await this.getAllMsgs()
+      const msgIndex = msgList.findIndex(msg => msg.id === id)
+      if (msgIndex === -1) {
         throw new Error(`Id ${id} not found`)
       } else {
-        msgsFile[index] = { ...obj, id }
+        msgList[msgIndex] = { ...msg, id }
       }
-      await fs.promises.writeFile(this.path, JSON.stringify(msgsFile))
+      await this.#writeMsg(msgList)
+      return msgList[msgIndex]
     } catch (error) {
       console.log(error)
     }
   }
 
   async deleteMsg (id) {
-    const msgsFile = await this.getAll()
-    if (msgsFile.length > 0) {
-      const newArray = msgsFile.filter(m => m.id !== id)
-      await fs.promises.writeFile(this.path, JSON.stringify(newArray))
+    const msgList = await this.getAllMsgs()
+    if (msgList.length > 0) {
+      const newMsgList = msgList.filter(msg => msg.id !== id)
+      await this.#writeMsg(newMsgList)
+      return newMsgList
     } else {
       throw new Error('Msg not found')
     }
   }
 
   async deleteMsgs () {
-    if (fs.promises(this.path)) {
-      await fs.promises.unlink(this.path)
+    if (promises(this.path)) {
+      await promises.unlink(this.path)
     }
   }
 }
