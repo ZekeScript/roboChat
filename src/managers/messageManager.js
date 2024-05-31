@@ -59,7 +59,7 @@ export default class MessageManager {
       if (msgSearched) {
         return msgSearched
       }
-      return false
+      return null
     } catch (error) {
       console.log(error)
     }
@@ -68,12 +68,11 @@ export default class MessageManager {
   async updateMsg (id, msg) {
     try {
       const msgList = await this.getAllMsgs()
-      const msgIndex = msgList.findIndex(msg => msg.id === id)
+      const msgIndex = msgList.findIndex(m => m.id === id)
       if (msgIndex === -1) {
         throw new Error(`Id ${id} not found`)
-      } else {
-        msgList[msgIndex] = { ...msg, id }
       }
+      msgList[msgIndex] = { ...msg, id }
       await this.#writeMsg(msgList)
       return msgList[msgIndex]
     } catch (error) {
@@ -82,19 +81,27 @@ export default class MessageManager {
   }
 
   async deleteMsg (id) {
-    const msgList = await this.getAllMsgs()
-    if (msgList.length > 0) {
-      const newMsgList = msgList.filter(msg => msg.id !== id)
-      await this.#writeMsg(newMsgList)
-      return newMsgList
-    } else {
-      throw new Error('Msg not found')
+    try {
+      const msgList = await this.getAllMsgs()
+      if (msgList.length > 0) {
+        const newMsgList = msgList.filter(msg => msg.id !== id)
+        await this.#writeMsg(newMsgList)
+        return newMsgList
+      } else {
+        throw new Error('Msg not found')
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
   async deleteMsgs () {
-    if (promises(this.path)) {
-      await promises.unlink(this.path)
+    try {
+      if (promises(this.path)) {
+        await promises.unlink(this.path)
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 }
