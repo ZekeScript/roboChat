@@ -38,6 +38,11 @@ socketServer.on('connection', async (socket) => {
   })
 
   socket.on('newUser', (user) => {
-    console.log(`${user} ha iniciado sesion`)
+    console.log(`> ${user} ha iniciado sesion`)
+  })
+
+  socket.on('chat:message', async (msg) => {
+    await messageManager.createMsg(msg)
+    socketServer.emit('messages', await messageManager.getAllMsgs())
   })
 })

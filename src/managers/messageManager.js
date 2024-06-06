@@ -30,8 +30,8 @@ export default class MessageManager {
         id: await this.#getMaxId() + 1,
         ...textMsg
       }
-      const msgList = await this.getAllMsgs()
-      const msgFile = [...msgList, newMsg]
+      const msgFile = await this.getAllMsgs()
+      msgFile.push(newMsg)
       await this.#writeMsg(msgFile)
       return newMsg
     } catch (error) {
@@ -42,8 +42,9 @@ export default class MessageManager {
   async getAllMsgs () {
     try {
       if (existsSync(this.path)) {
-        const msgs = JSON.parse(await promises.readFile(this.path, 'utf8'))
-        return msgs
+        const msgs = await promises.readFile(this.path, 'utf8')
+        const msgsJS = JSON.parse(msgs)
+        return msgsJS
       } else {
         return []
       }
