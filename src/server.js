@@ -1,10 +1,10 @@
 import express from 'express'
 import handlebars from 'express-handlebars'
-import { __dirname } from './src/utils.js'
-import { errorHandler } from './src/middlewares/errorHandler.js'
+import { __dirname } from './utils.js'
+import { errorHandler } from './middlewares/errorHandler.js'
 import { Server } from 'socket.io'
-import viewsRouter from './src/routes/viewsRouter.js'
-import MessageManager from './src/managers/messageManager.js'
+import viewsRouter from './routes/viewsRouter.js'
+import MessageManager from './managers/messageManager.js'
 
 const app = express()
 const messageManager = new MessageManager(`${__dirname}/data/messages.json`)
