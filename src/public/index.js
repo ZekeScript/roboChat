@@ -1,10 +1,8 @@
-// eslint-disable-next-line no-undef
 const socket = io()
 
 let username = null
 
 if (!username) {
-  // eslint-disable-next-line no-undef
   Swal.fire({
     title: 'Welcome to chat',
     inputLabel: 'Insert your username:',
@@ -36,9 +34,25 @@ btn.addEventListener('click', () => {
 })
 
 socket.on('messages', (data) => {
+  action.innerHTML = ''
   const chatRender = data.map((msg) => {
-    return `<p><string>${msg.username}</strong>: ${msg.message}</p>`
+    return `<p><strong>${msg.username}</strong>: ${msg.message}</p>`
   }).join(' ')
 
   output.innerHTML = chatRender
+})
+
+socket.on('newUser', (username) => {
+  Toastify({
+    text: `${username} is loged in`,
+    duration: 3000
+  }).showToast()
+})
+
+message.addEventListener('keypress', () => {
+  socket.emit('chat:typing', username)
+})
+
+socket.on('chat:typing', (data) => {
+  action.innerHTML = `<p><strong>${data} is writing a message...</strong></p>`
 })

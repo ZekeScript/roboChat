@@ -39,10 +39,15 @@ socketServer.on('connection', async (socket) => {
 
   socket.on('newUser', (user) => {
     console.log(`> ${user} ha iniciado sesion`)
+    socket.broadcast.emit('newUser', user)
   })
 
   socket.on('chat:message', async (msg) => {
     await messageManager.createMsg(msg)
     socketServer.emit('messages', await messageManager.getAllMsgs())
+  })
+
+  socket.on('chat:typing', (data) => {
+    socket.broadcast.emit('chat:typing', data)
   })
 })
